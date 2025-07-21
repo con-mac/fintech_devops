@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # FastAPI Application
-  api-gateway:
+  api_gateway:
     build: .
     ports:
       - "8000:8000"
@@ -104,7 +104,7 @@ services:
       - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./infrastructure/nginx/ssl:/etc/nginx/ssl
     depends_on:
-      - api-gateway
+      - api_gateway
     networks:
       - fintech-network
     restart: unless-stopped

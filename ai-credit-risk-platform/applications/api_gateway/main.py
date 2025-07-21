@@ -4,8 +4,10 @@ Main FastAPI application entry point
 """
 
 import os
+import time
 from contextlib import asynccontextmanager
 from typing import Dict, Any
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -196,7 +198,7 @@ async def assess_credit_risk(
             "risk_score": risk_score,
             "risk_level": risk_level,
             "recommendation": "APPROVE" if risk_level == "LOW" else "REVIEW" if risk_level == "MEDIUM" else "DECLINE",
-            "assessment_date": datetime.utcnow().isoformat(),
+            "assessment_date": datetime.now(timezone.utc).isoformat(),
             "assessor": current_user.username
         }
         

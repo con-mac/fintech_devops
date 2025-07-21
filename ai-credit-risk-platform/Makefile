@@ -26,7 +26,7 @@ dev-setup: ## Set up development environment
 
 run-dev: ## Run development server
 	@echo "Starting development server..."
-	uvicorn applications.api-gateway.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn applications.api_gateway.main:app --reload --host 0.0.0.0 --port 8000
 
 # Testing Commands
 test: ## Run all tests

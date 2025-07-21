@@ -2,7 +2,7 @@
 Pydantic models for the API Gateway
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from pydantic import BaseModel, Field, EmailStr
 
@@ -12,7 +12,7 @@ class HealthCheck(BaseModel):
     status: str = Field(..., description="Health status")
     version: str = Field(..., description="Application version")
     environment: str = Field(..., description="Environment name")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Check timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Check timestamp")
 
 
 class UserBase(BaseModel):
@@ -103,7 +103,7 @@ class ErrorResponse(BaseModel):
     """Error response model"""
     error: str = Field(..., description="Error message")
     status_code: int = Field(..., description="HTTP status code")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Error timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Error timestamp")
     request_id: Optional[str] = Field(None, description="Request identifier for tracking")
 
 

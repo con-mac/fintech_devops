@@ -358,7 +358,7 @@ fintech-devops-project/
 ├── project_requirements.md          # This file - central reference
 ├── ai-credit-risk-platform/        # Primary project
 │   ├── applications/               # Microservices
-│   │   ├── api-gateway/           # API Gateway service
+│   │   ├── api_gateway/           # API Gateway service
 │   │   ├── user-service/          # User management service
 │   │   ├── banking-service/       # Banking integration service
 │   │   ├── ai-service/            # AI/ML service
