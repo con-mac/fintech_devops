@@ -16,7 +16,7 @@ from fastapi.security import HTTPBearer
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 import structlog
 
 from .config import settings
@@ -209,6 +209,55 @@ async def assess_credit_risk(
             detail="Failed to assess credit risk"
         )
 
+# Test endpoint without authentication
+@app.post("/api/v1/credit-risk/test", tags=["Credit Risk"])
+async def test_credit_risk_assessment(
+    request: Request
+) -> Dict[str, Any]:
+    """
+    Test credit risk assessment endpoint (no authentication required)
+    This is for testing purposes only
+    """
+    try:
+        data = await request.json()
+        
+        # Simple rule-based risk assessment for MVP
+        income = data.get("income", 0)
+        credit_score = data.get("credit_score", 0)
+        debt_ratio = data.get("debt_ratio", 0)
+        
+        # Basic risk calculation
+        risk_score = 0
+        if income < 30000:
+            risk_score += 30
+        if credit_score < 650:
+            risk_score += 25
+        if debt_ratio > 0.4:
+            risk_score += 20
+            
+        risk_level = "LOW" if risk_score < 30 else "MEDIUM" if risk_score < 60 else "HIGH"
+        
+        logger.info(
+            "Test credit risk assessment completed",
+            risk_score=risk_score,
+            risk_level=risk_level
+        )
+        
+        return {
+            "risk_score": risk_score,
+            "risk_level": risk_level,
+            "recommendation": "APPROVE" if risk_level == "LOW" else "REVIEW" if risk_level == "MEDIUM" else "DECLINE",
+            "assessment_date": datetime.now(timezone.utc).isoformat(),
+            "assessor": "test-system"
+        }
+        
+    except Exception as e:
+        logger.error("Test credit risk assessment failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to assess credit risk"
+        )
+
 # Error handlers
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
@@ -219,7 +268,10 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         detail=exc.detail
     )
-    return {"error": exc.detail, "status_code": exc.status_code}
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
@@ -230,10 +282,10 @@ async def general_exception_handler(request: Request, exc: Exception):
         error=str(exc),
         exc_info=True
     )
-    return {
-        "error": "Internal server error",
-        "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR
-    }
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"error": "Internal server error"}
+    )
 
 if __name__ == "__main__":
     import uvicorn
